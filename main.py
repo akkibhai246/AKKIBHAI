@@ -17,10 +17,6 @@ import threading
 
 app = Flask(__name__)
 
-@app.route("/")
-def home():
-    return "Hello from Render!"
-
 app.debug = True
 
 user_agents = [
