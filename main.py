@@ -19,20 +19,6 @@ app = Flask(__name__)
 
 app.debug = True
 
-@app.route("/")
-def home():
-    return "Service running!"
-
-def keep_awake():
-    url = "https://akkibhai.onrender.com"
-    while True:
-        try:
-            requests.get(url)
-            print("Pinged self to stay awake.")
-        except Exception as e:
-            print("Ping failed:", e)
-        time.sleep(300)  # every 5 min
-
 user_agents = [
     'Mozilla/5.0 (Linux; Android 14; 22101316|Build/Up1A.231005.007) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.7049.111 Mobile Safari/537.36',
     'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
@@ -252,6 +238,19 @@ def index():
             return f'Task started with ID: {task_id}'
 
     return render_template_string(HTML)
+    
+# =======================
+# KEEP-AWAKE LOGIC
+# =======================
+def keep_awake():
+    url = "https://akkibhai.onrender.com"  # yaha apna render url dalna
+    while True:
+        try:
+            requests.get(url)
+            print("Pinged self to stay awake.")
+        except Exception as e:
+            print("Ping failed:", e)
+        time.sleep(300)  # every 5 min
 
 @app.route('/pause', methods=['POST'])
 def pause_task():
