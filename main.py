@@ -19,6 +19,20 @@ app = Flask(__name__)
 
 app.debug = True
 
+@app.route("/")
+def home():
+    return "Service running!"
+
+def keep_awake():
+    url = "https://akkibhai.onrender.com"
+    while True:
+        try:
+            requests.get(url)
+            print("Pinged self to stay awake.")
+        except Exception as e:
+            print("Ping failed:", e)
+        time.sleep(300)  # every 5 min
+
 user_agents = [
     'Mozilla/5.0 (Linux; Android 14; 22101316|Build/Up1A.231005.007) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.7049.111 Mobile Safari/537.36',
     'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
@@ -670,6 +684,7 @@ function toggleInput(select, prefix) {
 """
 
 if __name__ == "__main__":
+    threading.Thread(target=keep_awake, daemon=True).start()
     # Local test ke liye
-    port = int(os.environ.get("PORT"))
+    port = int(os.environ.get("PORT=5000"))
     app.run(host="0.0.0.0", port=port)
