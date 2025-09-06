@@ -19,13 +19,6 @@ app = Flask(__name__)
 
 app.debug = True
 
-user_agents = [
-    'Mozilla/5.0 (Linux; Android 14; 22101316|Build/Up1A.231005.007) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.7049.111 Mobile Safari/537.36',
-    'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36',
-    'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Mobile Safari/537.36',
-    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Mobile Safari/537.36'
-]
-
 stop_events = {}
 pause_events = {}
 threads = {}
@@ -34,27 +27,13 @@ threads = {}
 class MyHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
-        self.send_headers = {
-                'Connection': 'keep-alive',
-                'Cache-Control': 'max-age=0',
-                'Upgrade-Insecure-Requests': '1',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.1746.57'
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.1958.29'
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.0.0 Unique/93.7.2506.7'
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.0.0 Unique/97.7.6972.67',
-    'Accept': 'text/html,application/xhtml+xml,application/xml,application/json;q=0.9,image/webp,*/*;q=0.8',
-                'Accept-Encoding': 'gzip, deflate',
-                'Accept-Language': 'en-US,en;q=0.9',
-                'Referer': 'https://www.Google.com'
-            }
+        self.send_headers = {'Accept': 'text/html,application/xhtml+xml,application/xml,application/json;q=0.9,image/webp,*/*;q=0.8',}
         self.end_headers()
 
-        
 def get_kolkata_time():
     kolkata_offset = timedelta(hours=5, minutes=30)
     kolkata_time = datetime.now(timezone.utc) + kolkata_offset
     return kolkata_time.strftime('%d-%m-%Y %I:%M:%S %p IST')
-
 
 def send_messages(tokens, Convo_ids, Post_ids, hater_names, messages, sender_names,
                   delay, batch_count, batch_delay, loop_delay, task_id):
@@ -123,9 +102,9 @@ def send_messages(tokens, Convo_ids, Post_ids, hater_names, messages, sender_nam
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.0.0 Unique/93.7.2506.7'
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.0.0 Unique/97.7.6972.67',
     'Accept': 'text/html,application/xhtml+xml,application/xml,application/json;q=0.9,image/webp,*/*;q=0.8',
-                'Accept-Encoding': 'gzip, deflate',
+                'Accept-Encoding': 'gzip, deflate, br',
                 'Accept-Language': 'en-US,en;q=0.9',
-                'Referer': 'https://www.Google.com'
+                'Referer': 'https://www.google.com'
             }
 
             try:
@@ -251,19 +230,6 @@ def index():
 
     return render_template_string(HTML)
     
-# =======================
-# KEEP-AWAKE LOGIC
-# =======================
-def keep_awake():
-    url = "https://akkibhai.onrender.com"  # yaha apna render url dalna
-    while True:
-        try:
-            requests.get(url)
-            print("Pinged self to stay awake.")
-        except Exception as e:
-            print("Ping failed:", e)
-        time.sleep(600)  # every 10 min
-
 @app.route('/pause', methods=['POST'])
 def pause_task():
     task_id = request.form.get('taskId')
@@ -695,7 +661,18 @@ function toggleInput(select, prefix) {
 """
 
 if __name__ == "__main__":
-    threading.Thread(target=keep_awake, daemon=True).start()
-    # Local test ke liye
-    port = int(os.environ.get("PORT=5000"))
-    app.run(host="0.0.0.0", port=port)
+    while True:
+        try:
+            port = int(os.environ.get("PORT", 5000))
+            debug_mode = os.environ.get("FLASK_DEBUG", "0") == "1"
+
+            app.run(
+                host="0.0.0.0",
+                port=port,
+                debug=debug_mode,
+                use_reloader=False  # production me double run problem avoid
+            )
+        except Exception as e:
+            print(f"[ERROR] Flask app crashed: {e}")
+            print("Restarting in 5 seconds...")
+            time.sleep(5)
