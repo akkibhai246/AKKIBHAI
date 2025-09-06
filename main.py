@@ -10,8 +10,6 @@ import json
 import sys
 from platform import system
 import os
-import subprocess
-import http.server
 import threading
 
 
@@ -22,13 +20,6 @@ app.debug = True
 stop_events = {}
 pause_events = {}
 threads = {}
-
-
-class MyHandler(http.server.SimpleHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.send_headers = {'Accept': 'text/html,application/xhtml+xml,application/xml,application/json;q=0.9,image/webp,*/*;q=0.8',}
-        self.end_headers()
 
 def get_kolkata_time():
     kolkata_offset = timedelta(hours=5, minutes=30)
